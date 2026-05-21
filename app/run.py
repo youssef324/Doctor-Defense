@@ -2,7 +2,7 @@ import os
 from app import create_app
 import ssl
 
-app = create_app()
+flask_app = create_app()
 
 if __name__ == '__main__':
     use_https = os.environ.get('USE_HTTPS', '').lower() in ('1', 'true', 'yes')
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print('⏹️  Press Ctrl+C to stop')
     print()
 
-    app.run(
+    flask_app.run(
         host='127.0.0.1',
         port=5000,
         debug=True,
