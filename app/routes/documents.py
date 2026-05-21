@@ -1,6 +1,7 @@
 from io import BytesIO
 import os
 
+# pyrefly: ignore [missing-import]
 from flask import (
     Blueprint,
     abort,
@@ -14,7 +15,10 @@ from flask import (
     session,
     url_for,
 )
+
+# pyrefly: ignore [missing-import]
 from flask_jwt_extended import get_jwt_identity, jwt_required
+# pyrefly: ignore [missing-import]
 from werkzeug.utils import secure_filename
 
 from app.models import Document, User, db
@@ -25,10 +29,8 @@ documents_bp = Blueprint('documents', __name__)
 
 
 def allowed_file(filename):
-    return (
-        '.' in filename
-        and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-    )
+    # Allow any file extension as long as it has a dot
+    return '.' in filename
 
 
 def _get_current_user():

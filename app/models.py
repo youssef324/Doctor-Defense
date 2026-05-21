@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from flask_sqlalchemy import SQLAlchemy
+# pyrefly: ignore [missing-import]
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 

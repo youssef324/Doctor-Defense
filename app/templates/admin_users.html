@@ -18,7 +18,20 @@
                 <td>{{ u.id }}</td>
                 <td><strong>{{ u.username }}</strong></td>
                 <td>{{ u.email }}</td>
-                <td><span class="badge bg-{{ 'success' if u.role=='Admin' else 'warning' }}">{{ u.role }}</span></td>
+                <td>
+                    {% if u.id == current_user.id %}
+                        <span class="badge bg-success">Admin (You)</span>
+                    {% else %}
+                        <form action="{{ url_for('admin.modify_user_role', user_id=u.id) }}" method="POST" class="d-flex align-items-center gap-2">
+                            <select name="role" class="form-select form-select-sm" style="width: auto; background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border);">
+                                <option value="User" {% if u.role == 'User' %}selected{% endif %}>User</option>
+                                <option value="Manager" {% if u.role == 'Manager' %}selected{% endif %}>Manager</option>
+                                <option value="Admin" {% if u.role == 'Admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fas fa-save"></i></button>
+                        </form>
+                    {% endif %}
+                </td>
                 <td>{{ u.created_at.strftime('%b %d, %Y') }}</td>
             </tr>
             {% endfor %}
