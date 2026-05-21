@@ -59,6 +59,24 @@ def create_app():
         except Exception:
             g.current_user = None
 
+    @app.before_request
+    def enforce_https():
+        """Enforce HTTPS in production to protect against MITM attacks."""
+        if app.config['JWT_COOKIE_SECURE'] and not request.is_secure and not app.debug:
+            url = request.url.replace('http://', 'https://', 1)
+            return redirect(url, code=301)
+
+    @app.after_request
+    def set_security_headers(response):
+        """Add security headers to protect against common attacks."""
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net"
+        return response
+
     @app.route('/')
     def index():
         return redirect(url_for('auth.login'))
