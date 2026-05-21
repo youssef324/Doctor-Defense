@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-9">
+        <div class="card p-5 shadow">
+            <div class="text-center mb-5">
+                <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                <h2 class="hero-text">Upload Documents</h2>
+                <p class="hero-subtext mb-0">All files will be encrypted individually</p>
+            </div>
+
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                <div id="dropZone" class="upload-area mb-4">
+                    <i class="fas fa-cloud-upload-alt fa-5x text-primary mb-3"></i>
+                    <h5 class="dropzone-title">Drag & Drop Multiple Files Here</h5>
+                    <p class="dropzone-title mb-3">or</p>
+                    <label for="fileInput" class="btn btn-outline-primary px-5 py-2">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </label>
+                    <input type="file" id="fileInput" name="files" class="d-none" multiple required>
+                    <div id="fileList" class="mt-4 text-start"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold password-label-accent">Decryption Password
+                        <small>(used to encrypt all selected files)</small>
+                    </label>
+                    <input type="password" name="password" id="password" class="form-control" style="background: #ffffff;" required>
+                </div>
+
+                <div id="uploadAlert" class="alert d-none" role="alert"></div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-3 fs-5">
+                    <i class="fas fa-lock"></i> Upload & Encrypt All Files
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileListDisplay = document.getElementById('fileList');
+const uploadForm = document.getElementById('uploadForm');
+const submitBtn = document.getElementById('submitBtn');
+const uploadAlert = document.getElementById('uploadAlert');
+
+let selectedFiles = [];
+
+function highlight() {
+    dropZone.style.borderColor = 'var(--primary)';
+    dropZone.style.background = 'rgba(0, 255, 157, 0.1)';
+}
+
+function unhighlight() {
+    dropZone.style.borderColor = 'var(--primary)';
+    dropZone.style.background = '';
+}
+
+function renderFileList() {
+    fileListDisplay.innerHTML = '';
+    if (selectedFiles.length === 0) return;
+
+    const ul = document.createElement('ul');
+    ul.className = 'list-unstyled';
+
+    selectedFiles.forEach((file) => {
+        const li = document.createElement('li');
+        li.className = 'd-flex justify-content-between align-items-center p-2 mb-1 bg-dark rounded';
+        li.innerHTML = `
+            <span><i class="fas fa-file text-primary"></i> ${file.name}</span>
+            <span class="text-muted small">${(file.size / 1024).toFixed(1)} KB</span>
+        `;
+        ul.appendChild(li);
+    });
+
+    fileListDisplay.appendChild(ul);
+}
+
+function handleFiles(files) {
+    selectedFiles = Array.from(files);
+    renderFileList();
+}
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    highlight();
+});
+
+dropZone.addEventListener('dragleave', unhighlight);
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    unhighlight();
+    handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+        handleFiles(fileInput.files);
+    }
+});
+
+uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (selectedFiles.length === 0) {
+        alert('Please select at least one file to upload');
+        return;
+    }
+
+    const formData = new FormData();
+    selectedFiles.forEach((file) => formData.append('files', file));
+    formData.append('password', document.getElementById('password').value);
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+    try {
+        const response = await fetch('{{ url_for("documents.upload") }}', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+
+        const data = await response.json();
+
+        uploadAlert.classList.remove('d-none', 'alert-success', 'alert-danger');
+        if (response.ok) {
+            uploadAlert.classList.add('alert-success');
+            uploadAlert.textContent = data.message;
+            setTimeout(() => {
+                window.location.href = '{{ url_for("documents.dashboard") }}';
+            }, 1200);
+        } else {
+            uploadAlert.classList.add('alert-danger');
+            uploadAlert.textContent = data.error || 'Upload failed';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-lock"></i> Upload & Encrypt All Files';
+        }
+    } catch (err) {
+        uploadAlert.classList.remove('d-none', 'alert-success');
+        uploadAlert.classList.add('alert-danger');
+        uploadAlert.textContent = 'Upload failed. Please try again.';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Upload & Encrypt All Files';
+    }
+});
+</script>
+{% endblock %}

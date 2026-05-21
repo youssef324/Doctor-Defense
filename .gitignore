@@ -1,0 +1,25 @@
+# IDE
+/.idea
+
+# Virtual environment
+/.venv
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables / secrets
+.env
+
+# Flask instance folder (DB, config)
+/instance
+
+# Certificates
+/cert.pfx
+
+# Launch scripts
+/start.bat
+
+# User uploads
+/uploads

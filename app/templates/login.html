@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-5 col-md-7">
+        <div class="auth-card p-5">
+            <div class="text-center mb-4">
+                <i class="fas fa-shield-alt fa-4x text-primary mb-3"></i>
+                <h2 class="hero-text">Where your important files stay truly safe</h2>
+                {% if requires_2fa %}
+                <p class="text-warning"><i class="fas fa-lock"></i> Sign in with your 2FA code</p>
+                {% endif %}
+            </div>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label auth-label-accent">Username</label>
+                    <input type="text" name="username" class="form-control auth-input" required
+                           value="{{ username_value or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label auth-label-accent">Password</label>
+                    <input type="password" name="password" class="form-control auth-input" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label auth-label-accent">
+                        2FA Code
+                        {% if requires_2fa %}
+                        <span class="text-warning">(required)</span>
+                        {% else %}
+                        <small style="color: #00ff9d;">(only after you enable 2FA)</small>
+                        {% endif %}
+                    </label>
+                    <input type="text" name="totp_code" class="form-control auth-input text-center"
+                           placeholder="000000" maxlength="6" inputmode="numeric"
+                           {% if requires_2fa %}required autofocus{% endif %}>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{{ url_for('oauth.google_login') }}" class="btn btn-outline-light flex-fill">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </a>
+                    <a href="{{ url_for('oauth.github_login') }}" class="btn btn-outline-light flex-fill">
+                        <i class="fab fa-github"></i> Continue with GitHub
+                    </a>
+                </div>
+            </form>
+
+            <p class="text-center mt-4 mb-0">
+                Don't have an account?
+                <a href="{{ url_for('auth.register') }}" class="text-primary">Register</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

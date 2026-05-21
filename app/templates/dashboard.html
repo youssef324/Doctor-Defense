@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if show_2fa_complete %}
+<div class="alert alert-success border-0 shadow-sm mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h5 class="mb-1"><i class="fas fa-check-circle"></i> Step 4: Test your 2FA login</h5>
+            <p class="mb-0 small">2FA is enabled. Log out, then sign in again using your password <strong>and</strong> the 6-digit code from your authenticator app.</p>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-warning">
+            <i class="fas fa-sign-out-alt"></i> Log Out & Test Login
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="hero-text">Welcome Back, {{ user.username }}</h1>
+        <p class="hero-subtext mb-0"><strong style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight:700;">Private. Protected. Always accessible.</strong></p>
+    </div>
+</div>
+
+<!-- Security Status Bar -->
+<div class="row mb-5 align-items-stretch">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body d-flex align-items-center h-100">
+                <div class="me-4">
+                    <i class="fas fa-{{ 'check-circle text-success' if twofa_enabled else 'exclamation-triangle text-warning' }} fa-3x"></i>
+                </div>
+                <div>
+                    <h5 class="hero-subtext mb-2">Two-Factor Authentication</h5>
+                    <h4>
+                        <span class="badge bg-{{ 'success' if twofa_enabled else 'warning' }} fs-6">
+                            {{ 'ENABLED' if twofa_enabled else 'NOT ENABLED' }}
+                        </span>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body d-flex align-items-center h-100">
+                <div class="me-4">
+                    <i class="fas fa-lock fa-3x text-primary"></i>
+                </div>
+                <div>
+                    <h5 class="hero-subtext mb-2">Documents Secured</h5>
+                    <h4 class="hero-subtext mb-0"><strong>{{ documents|length }}</strong> files</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Your Secure Documents</h3>
+    <a href="{{ url_for('documents.upload') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-cloud-upload-alt"></i> Upload New Documents
+    </a>
+</div>
+
+<!-- Documents Grid -->
+<div class="row">
+    {% for doc in documents %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-truncate doc-card-meta">{{ doc.original_filename }}</h5>
+                <p class="small doc-card-meta">
+                    {{ (doc.size / 1024)|round(1) }} KB • {{ doc.uploaded_at.strftime('%b %d, %Y') }}
+                </p>
+                
+                <form method="POST" action="{{ url_for('documents.download', doc_id=doc.id) }}">
+                    <div class="input-group mb-3">
+                        <input type="password" name="password" class="form-control doc-password-input" placeholder="Enter Password for Decryption" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-download"></i> Download & Decrypt
+                    </button>
+                </form>
+                
+                <a href="{{ url_for('documents.verify', doc_id=doc.id) }}" class="btn btn-outline-info w-100 mb-2">
+                    <i class="fas fa-check-circle"></i> Verify Integrity
+                </a>
+
+                <form method="POST" action="{{ url_for('documents.delete_document', doc_id=doc.id) }}"
+                      onsubmit="return confirm('Delete this document permanently?');">
+                    <div class="input-group mb-3">
+                        <input type="password" name="password" class="form-control doc-password-input" placeholder="Password to confirm delete" required>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+        <p class="text-muted">No documents yet. Upload your first document!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-5 d-flex gap-3 flex-wrap">
+    <a href="{{ url_for('auth.setup_2fa') }}" class="btn btn-warning">
+        <i class="fas fa-shield-alt"></i> 
+        {{ 'Manage 2FA' if twofa_enabled else 'Setup 2FA Now' }}
+    </a>
+    
+    {% if user.role in ['Admin', 'Manager'] %}
+    <a href="{{ url_for('admin.all_documents') }}" class="btn btn-info">
+        <i class="fas fa-users"></i> View All Documents
+    </a>
+    {% endif %}
+    
+    {% if user.role == 'Admin' %}
+    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-danger">
+        <i class="fas fa-user-cog"></i> Manage Users
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
