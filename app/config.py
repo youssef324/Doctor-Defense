@@ -22,10 +22,15 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-jwt-secret-change-in-production')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
     JWT_TOKEN_LOCATION = ['cookies']
-    JWT_COOKIE_SECURE = False
-    JWT_COOKIE_CSRF_PROTECT = False
+    
+    # Security: Use environment variable to control HTTPS requirement
+    # In production, set FLASK_ENV=production to enforce HTTPS
+    _IS_PRODUCTION = os.environ.get('FLASK_ENV') == 'production'
+    JWT_COOKIE_SECURE = _IS_PRODUCTION or os.environ.get('JWT_COOKIE_SECURE', 'False').lower() == 'true'
+    JWT_COOKIE_CSRF_PROTECT = True  # Enable CSRF protection for JWT cookies
     JWT_ACCESS_COOKIE_NAME = 'jwt_token'
-    JWT_COOKIE_SAMESITE = 'Lax'
+    JWT_COOKIE_SAMESITE = 'Strict'  # Changed from 'Lax' to 'Strict' for better security
+    JWT_COOKIE_HTTPONLY = True  # Prevent JavaScript access to cookies
 
     # === OAuth Config ===
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
