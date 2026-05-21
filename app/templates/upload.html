@@ -1,154 +1,262 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-lg-9">
-        <div class="card p-5 shadow">
-            <div class="text-center mb-5">
-                <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
-                <h2 class="hero-text">Upload Documents</h2>
-                <p class="hero-subtext mb-0">All files will be encrypted individually</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Document — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔐</div>
+      DocVault
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">HTTPS Secure</div>
+      <span style="font-size:0.825rem; color:var(--text-2);">John Doe</span>
+      <div class="avatar">JD</div>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Sign out</a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-link">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a href="/documents" class="nav-link">
+      <span class="nav-icon">📁</span> My Documents
+    </a>
+    <a href="/documents/upload" class="nav-link active">
+      <span class="nav-icon">⬆️</span> Upload
+    </a>
+    <a href="/documents/verify" class="nav-link">
+      <span class="nav-icon">✅</span> Verify Document
+    </a>
+    <span class="nav-section-label">Account</span>
+    <a href="/profile" class="nav-link">
+      <span class="nav-icon">👤</span> Profile
+    </a>
+    <a href="/profile/2fa" class="nav-link">
+      <span class="nav-icon">🔐</span> Two-Factor Auth
+    </a>
+    <a href="/profile/security" class="nav-link">
+      <span class="nav-icon">🛡️</span> Security Log
+    </a>
+    <span class="nav-section-label">Administration</span>
+    <a href="/admin/users" class="nav-link">
+      <span class="nav-icon">👥</span> Manage Users
+    </a>
+    <a href="/admin/audit" class="nav-link">
+      <span class="nav-icon">📋</span> Audit Log
+    </a>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">JD</div>
+        <div class="user-meta">
+          <div class="name">John Doe</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Upload Document</h1>
+        <p>Files are encrypted with AES-256 and signed before storage.</p>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    <!-- <div class="alert alert-success">
+      <span class="alert-icon">✅</span>
+      Document uploaded and encrypted successfully.
+    </div> -->
+
+    <div style="display:grid; grid-template-columns:1fr 320px; gap:1.5rem; align-items:start;">
+
+      <!-- Upload form -->
+      <div class="card">
+        <form action="/documents/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+
+          <!-- Drop zone -->
+          <div class="upload-zone" id="dropZone">
+            <input type="file" name="document" id="fileInput" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.xlsx,.csv" />
+            <div class="upload-icon">📂</div>
+            <h3>Drop your file here</h3>
+            <p>or click to browse from your computer</p>
+            <div class="file-types">
+              <span class="badge badge-gray">PDF</span>
+              <span class="badge badge-gray">DOCX</span>
+              <span class="badge badge-gray">XLSX</span>
+              <span class="badge badge-gray">TXT</span>
+              <span class="badge badge-gray">PNG</span>
+              <span class="badge badge-gray">JPG</span>
+            </div>
+            <p style="margin-top:0.75rem; font-size:0.75rem; color:var(--text-3);">Maximum file size: 50 MB</p>
+          </div>
+
+          <!-- File preview -->
+          <div id="filePreview" style="display:none; margin-top:1rem; padding:14px; background:var(--navy-3); border-radius:var(--radius-md); border:1px solid var(--border); display:none; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.5rem;" id="previewIcon">📄</span>
+              <div>
+                <div style="font-size:0.875rem; font-weight:500; color:var(--text-1);" id="previewName">filename.pdf</div>
+                <div style="font-size:0.75rem; color:var(--text-3);" id="previewSize">0 KB</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Remove</button>
+          </div>
+
+          <div style="margin-top:1.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="docName">Document name <span style="color:var(--text-3); font-weight:400;">(optional)</span></label>
+              <input type="text" id="docName" name="docName" class="form-control" placeholder="Descriptive name for this file" />
             </div>
 
-            <form id="uploadForm" method="POST" enctype="multipart/form-data">
-                <div id="dropZone" class="upload-area mb-4">
-                    <i class="fas fa-cloud-upload-alt fa-5x text-primary mb-3"></i>
-                    <h5 class="dropzone-title">Drag & Drop Multiple Files Here</h5>
-                    <p class="dropzone-title mb-3">or</p>
-                    <label for="fileInput" class="btn btn-outline-primary px-5 py-2">
-                        <i class="fas fa-folder-open"></i> Browse Files
-                    </label>
-                    <input type="file" id="fileInput" name="files" class="d-none" multiple required>
-                    <div id="fileList" class="mt-4 text-start"></div>
-                </div>
+            <div class="form-group">
+              <label class="form-label" for="category">Category</label>
+              <select id="category" name="category" class="form-control">
+                <option value="">— Select category —</option>
+                <option value="contract">Contract</option>
+                <option value="financial">Financial</option>
+                <option value="identity">Identity</option>
+                <option value="legal">Legal</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold password-label-accent">Decryption Password
-                        <small>(used to encrypt all selected files)</small>
-                    </label>
-                    <input type="password" name="password" id="password" class="form-control" style="background: #ffffff;" required>
-                </div>
+            <div class="form-group">
+              <label class="form-label" for="notes">Notes <span style="color:var(--text-3); font-weight:400;">(optional)</span></label>
+              <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Add any relevant notes about this document..." style="resize:vertical;"></textarea>
+            </div>
+          </div>
 
-                <div id="uploadAlert" class="alert d-none" role="alert"></div>
+          <!-- Upload progress (hidden until upload starts) -->
+          <div id="uploadProgress" style="display:none; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--text-2);">Uploading & encrypting...</span>
+              <span style="color:var(--accent-2);" id="progressPct">0%</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-bar" id="progressBar" style="width:0%;"></div>
+            </div>
+          </div>
 
-                <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-3 fs-5">
-                    <i class="fas fa-lock"></i> Upload & Encrypt All Files
-                </button>
-            </form>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn">
+            🔒 Encrypt & Upload
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Info panel -->
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:1rem;">What happens to your file</h3>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div style="width:28px; height:28px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.75rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">1</div>
+              <div>
+                <div style="font-size:0.85rem; font-weight:500; color:var(--text-1); margin-bottom:2px;">SHA-256 hash computed</div>
+                <div style="font-size:0.78rem; color:var(--text-3);">A unique fingerprint is created from your file's contents</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div style="width:28px; height:28px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.75rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">2</div>
+              <div>
+                <div style="font-size:0.85rem; font-weight:500; color:var(--text-1); margin-bottom:2px;">Digital signature generated</div>
+                <div style="font-size:0.78rem; color:var(--text-3);">The hash is signed to prove authenticity</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:flex-start;">
+              <div style="width:28px; height:28px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.75rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">3</div>
+              <div>
+                <div style="font-size:0.85rem; font-weight:500; color:var(--text-1); margin-bottom:2px;">AES-256 encryption applied</div>
+                <div style="font-size:0.78rem; color:var(--text-3);">File is encrypted before being saved to storage</div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.75rem;">Allowed file types</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <span class="badge badge-blue">PDF</span>
+            <span class="badge badge-blue">DOCX</span>
+            <span class="badge badge-blue">DOC</span>
+            <span class="badge badge-blue">XLSX</span>
+            <span class="badge badge-blue">CSV</span>
+            <span class="badge badge-blue">TXT</span>
+            <span class="badge badge-blue">PNG</span>
+            <span class="badge badge-blue">JPG</span>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-3); margin-top:10px;">Max size: 50 MB per file</p>
+        </div>
+      </div>
+
     </div>
+
+  </main>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const fileListDisplay = document.getElementById('fileList');
-const uploadForm = document.getElementById('uploadForm');
-const submitBtn = document.getElementById('submitBtn');
-const uploadAlert = document.getElementById('uploadAlert');
+  const dropZone  = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const preview   = document.getElementById('filePreview');
 
-let selectedFiles = [];
+  const icons = { pdf:'📄', doc:'📝', docx:'📝', xlsx:'📊', csv:'📊', txt:'📋', png:'🖼️', jpg:'🖼️', jpeg:'🖼️' };
 
-function highlight() {
-    dropZone.style.borderColor = 'var(--primary)';
-    dropZone.style.background = 'rgba(0, 255, 157, 0.1)';
-}
+  function showPreview(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    document.getElementById('previewIcon').textContent = icons[ext] || '📄';
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('previewSize').textContent = (file.size / 1024 < 1024)
+      ? (file.size / 1024).toFixed(1) + ' KB'
+      : (file.size / 1024 / 1024).toFixed(1) + ' MB';
+    preview.style.display = 'flex';
+    dropZone.style.display = 'none';
+  }
 
-function unhighlight() {
-    dropZone.style.borderColor = 'var(--primary)';
-    dropZone.style.background = '';
-}
+  function clearFile() {
+    fileInput.value = '';
+    preview.style.display = 'none';
+    dropZone.style.display = 'block';
+  }
 
-function renderFileList() {
-    fileListDisplay.innerHTML = '';
-    if (selectedFiles.length === 0) return;
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
 
-    const ul = document.createElement('ul');
-    ul.className = 'list-unstyled';
-
-    selectedFiles.forEach((file) => {
-        const li = document.createElement('li');
-        li.className = 'd-flex justify-content-between align-items-center p-2 mb-1 bg-dark rounded';
-        li.innerHTML = `
-            <span><i class="fas fa-file text-primary"></i> ${file.name}</span>
-            <span class="text-muted small">${(file.size / 1024).toFixed(1)} KB</span>
-        `;
-        ul.appendChild(li);
-    });
-
-    fileListDisplay.appendChild(ul);
-}
-
-function handleFiles(files) {
-    selectedFiles = Array.from(files);
-    renderFileList();
-}
-
-dropZone.addEventListener('dragover', (e) => {
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
     e.preventDefault();
-    highlight();
-});
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) { fileInput.files = e.dataTransfer.files; showPreview(file); }
+  });
 
-dropZone.addEventListener('dragleave', unhighlight);
-
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    unhighlight();
-    handleFiles(e.dataTransfer.files);
-});
-
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-        handleFiles(fileInput.files);
-    }
-});
-
-uploadForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (selectedFiles.length === 0) {
-        alert('Please select at least one file to upload');
-        return;
-    }
-
-    const formData = new FormData();
-    selectedFiles.forEach((file) => formData.append('files', file));
-    formData.append('password', document.getElementById('password').value);
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-
-    try {
-        const response = await fetch('{{ url_for("documents.upload") }}', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            credentials: 'same-origin',
-        });
-
-        const data = await response.json();
-
-        uploadAlert.classList.remove('d-none', 'alert-success', 'alert-danger');
-        if (response.ok) {
-            uploadAlert.classList.add('alert-success');
-            uploadAlert.textContent = data.message;
-            setTimeout(() => {
-                window.location.href = '{{ url_for("documents.dashboard") }}';
-            }, 1200);
-        } else {
-            uploadAlert.classList.add('alert-danger');
-            uploadAlert.textContent = data.error || 'Upload failed';
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-lock"></i> Upload & Encrypt All Files';
-        }
-    } catch (err) {
-        uploadAlert.classList.remove('d-none', 'alert-success');
-        uploadAlert.classList.add('alert-danger');
-        uploadAlert.textContent = 'Upload failed. Please try again.';
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Upload & Encrypt All Files';
-    }
-});
+  document.getElementById('uploadForm').addEventListener('submit', function() {
+    const prog = document.getElementById('uploadProgress');
+    const bar  = document.getElementById('progressBar');
+    const pct  = document.getElementById('progressPct');
+    prog.style.display = 'block';
+    let p = 0;
+    const interval = setInterval(() => {
+      p = Math.min(p + Math.random() * 12, 95);
+      bar.style.width = p + '%';
+      pct.textContent = Math.round(p) + '%';
+      if (p >= 95) clearInterval(interval);
+    }, 200);
+  });
 </script>
-{% endblock %}
+</body>
+</html>

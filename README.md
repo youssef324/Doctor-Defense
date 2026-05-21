@@ -4,7 +4,7 @@
   <p>
     <strong>A modern, enterprise-grade secure document management platform with end-to-end encryption, digital signatures, and role-based access control.</strong>
   </p>
-  
+   
   [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)](https://www.python.org/)
   [![Flask](https://img.shields.io/badge/Flask-2.0+-green?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
   [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1.4+-red?style=flat-square&logo=database)](https://www.sqlalchemy.org/)

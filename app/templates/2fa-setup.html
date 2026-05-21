@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2FA Setup — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="auth-page" style="grid-template-columns: 1fr;">
+  <div class="auth-panel auth-right" style="align-items:center; padding: 2.5rem 1.5rem;">
+    <div class="auth-form-wrap" style="max-width:480px; width:100%;">
+
+      <!-- Flask flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'error' if category == 'danger' else category }}" style="margin-bottom:1rem;">
+            <span class="alert-icon">{{ '✅' if category == 'success' else ('ℹ️' if category == 'info' else '⚠️') }}</span>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      {% if already_enabled %}
+        <!-- ── Already enabled state ── -->
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div style="font-size:3rem; margin-bottom:0.75rem;">✅</div>
+          <h1 style="font-size:1.5rem; margin-bottom:0.4rem;">2FA is active</h1>
+          <p class="subtitle">Your account is protected with two-factor authentication.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;">
+            <span style="color:var(--text-2);">Status</span>
+            <span class="badge badge-green">✓ Enabled</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem; margin-top:10px;">
+            <span style="color:var(--text-2);">Account</span>
+            <span style="color:var(--text-1);">{{ user.email }}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem; margin-top:10px;">
+            <span style="color:var(--text-2);">Issuer</span>
+            <span style="color:var(--text-1);">DoctorDefense</span>
+          </div>
+        </div>
+
+        <!-- QR code to re-scan if needed -->
+        <div class="qr-wrapper" style="margin-bottom:1.25rem;">
+          <img src="data:image/png;base64,{{ qr_code }}" alt="2FA QR Code" width="180" height="180" />
+          <div style="font-size:0.78rem; color:var(--text-3); text-align:center;">
+            Re-scan this code to re-link your authenticator app<br/>
+            <span style="font-family:monospace; color:var(--accent-2); font-size:0.8rem; letter-spacing:0.1em; word-break:break-all;">
+              {{ secret }}
+            </span>
+          </div>
+        </div>
+
+        <a href="/documents/dashboard" class="btn btn-primary btn-block btn-lg">Go to dashboard</a>
+        <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--text-3);">
+          <a href="/auth/logout" style="color:var(--text-3);">Sign out</a>
+        </p>
+
+      {% else %}
+        <!-- ── Setup wizard ── -->
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div style="font-size:3rem; margin-bottom:0.75rem;">🔐</div>
+          <h1 style="font-size:1.5rem; margin-bottom:0.4rem;">Set up two-factor auth</h1>
+          <p class="subtitle">Protect your vault with a time-based one-time password (TOTP)</p>
+        </div>
+
+        <!-- Step indicators -->
+        <style>
+          .step-dot {
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:0.8rem;
+            font-weight:700;
+            flex-shrink:0;
+            line-height:1;
+            text-align:center;
+            padding:0;
+            box-sizing:border-box;
+            width:30px;
+            height:30px;
+          }
+          .step-dot.sm { width:28px; height:28px; font-size:0.75rem; }
+          .step-dot.done    { background:var(--success-bg);  color:var(--success);  border:1px solid var(--success); }
+          .step-dot.current { background:var(--accent-glow); color:var(--accent-2); border:1px solid var(--accent);  }
+          .step-dot.pending { background:var(--navy-4);      color:var(--text-3);   border:1px solid var(--border);  }
+          .step-dot-line    { height:1px; width:30px; background:var(--border); }
+        </style>
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:2rem;">
+          {% for s in [1, 2, 3] %}
+            {% if step > s %}
+              <div class="step-dot done">✓</div>
+            {% elif step == s %}
+              <div class="step-dot current">{{ s }}</div>
+            {% else %}
+              <div class="step-dot pending">{{ s }}</div>
+            {% endif %}
+            {% if s < 3 %}<div class="step-dot-line"></div>{% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Step 1: Install app -->
+        {% if step > 1 %}
+          <div class="card" style="margin-bottom:1rem; opacity:0.5;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="step-dot done">✓</div>
+              <h3 style="font-size:0.95rem;">Install an authenticator app</h3>
+            </div>
+          </div>
+        {% else %}
+          <div class="card" style="margin-bottom:1rem;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+              <div class="step-dot current">1</div>
+              <h3 style="font-size:0.95rem;">Install an authenticator app</h3>
+            </div>
+            <p style="font-size:0.83rem; color:var(--text-3); margin-left:38px;">
+              Download <strong style="color:var(--text-2);">Google Authenticator</strong>, <strong style="color:var(--text-2);">Authy</strong>, or any TOTP-compatible app on your phone.
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Step 2: Scan QR -->
+        <div class="card" style="margin-bottom:1rem;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+            {% if step > 2 %}
+              <div class="step-dot done">✓</div>
+            {% elif step == 2 %}
+              <div class="step-dot current">2</div>
+            {% else %}
+              <div class="step-dot pending">2</div>
+            {% endif %}
+            <h3 style="font-size:0.95rem;">Scan the QR code</h3>
+          </div>
+          <div style="margin-left:38px;">
+            <p style="font-size:0.83rem; color:var(--text-3); margin-bottom:1rem;">
+              Open your authenticator app and tap <strong style="color:var(--text-2);">+</strong> or <strong style="color:var(--text-2);">Scan QR</strong>.
+            </p>
+            <div class="qr-wrapper">
+              <img src="data:image/png;base64,{{ qr_code }}" alt="Scan this QR code" width="180" height="180" />
+              <div style="font-size:0.75rem; color:var(--text-3); text-align:center;">
+                Can't scan? Enter this key manually:<br/>
+                <span style="font-family:monospace; color:var(--accent-2); font-size:0.8rem; letter-spacing:0.1em; word-break:break-all;">
+                  {{ secret }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Verify code — POST to /auth/2fa-setup -->
+        <div class="card">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.75rem;">
+            <div class="step-dot sm current">3</div>
+            <h3 style="font-size:0.95rem;">Enter the 6-digit code to confirm</h3>
+          </div>
+          <div style="margin-left:38px;">
+            <p style="font-size:0.83rem; color:var(--text-3); margin-bottom:1rem;">
+              Type the code shown in your app for <strong style="color:var(--text-2);">DoctorDefense</strong>.
+            </p>
+
+            <!-- POST to /auth/2fa-setup, field name: totp_code -->
+            <form action="/auth/2fa-setup" method="POST" id="otpForm">
+              <div class="otp-inputs" id="otpInputs" style="justify-content:flex-start; margin-bottom:1.25rem;">
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" />
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+                <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+              </div>
+              <!-- Field name Flask reads: request.form.get('totp_code') -->
+              <input type="hidden" name="totp_code" id="otpHidden" />
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg">
+                ✅ Verify & enable 2FA
+              </button>
+            </form>
+
+          </div>
+        </div>
+
+        <p style="text-align:center; margin-top:1.25rem; font-size:0.8rem;">
+          <a href="/auth/logout" style="color:var(--text-3);">Sign out and come back later</a>
+        </p>
+
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const inputs = document.querySelectorAll('.otp-input');
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '');
+      if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
+      sync();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const data = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+      data.split('').forEach((ch, j) => { if (inputs[j]) inputs[j].value = ch; });
+      sync();
+      if (inputs[data.length - 1]) inputs[data.length - 1].focus();
+    });
+  });
+
+  function sync() {
+    const h = document.getElementById('otpHidden');
+    if (h) h.value = [...inputs].map(i => i.value).join('');
+  }
+
+  if (inputs.length) inputs[0].focus();
+</script>
+</body>
+</html>

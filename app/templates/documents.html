@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Documents — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔐</div>
+      DocVault
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">HTTPS Secure</div>
+      <span style="font-size:0.825rem; color:var(--text-2);">John Doe</span>
+      <div class="avatar">JD</div>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Sign out</a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/documents" class="nav-link active"><span class="nav-icon">📁</span> My Documents</a>
+    <a href="/documents/upload" class="nav-link"><span class="nav-icon">⬆️</span> Upload</a>
+    <a href="/documents/verify" class="nav-link"><span class="nav-icon">✅</span> Verify Document</a>
+    <span class="nav-section-label">Account</span>
+    <a href="/profile" class="nav-link"><span class="nav-icon">👤</span> Profile</a>
+    <a href="/profile/2fa" class="nav-link"><span class="nav-icon">🔐</span> Two-Factor Auth</a>
+    <a href="/profile/security" class="nav-link"><span class="nav-icon">🛡️</span> Security Log</a>
+    <span class="nav-section-label">Administration</span>
+    <a href="/admin/users" class="nav-link"><span class="nav-icon">👥</span> Manage Users</a>
+    <a href="/admin/audit" class="nav-link"><span class="nav-icon">📋</span> Audit Log</a>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">JD</div>
+        <div class="user-meta">
+          <div class="name">John Doe</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>My Documents</h1>
+        <p>48 documents · 2.4 GB used</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary" id="toggleView" onclick="toggleView()">⊞ Grid view</button>
+        <a href="/documents/upload" class="btn btn-primary">⬆️ Upload</a>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search documents..." oninput="filterDocs(this.value)" />
+      </div>
+      <select class="form-control" style="width:auto;" onchange="filterStatus(this.value)">
+        <option value="">All statuses</option>
+        <option value="verified">Verified</option>
+        <option value="pending">Pending</option>
+        <option value="modified">Modified</option>
+      </select>
+      <select class="form-control" style="width:auto;">
+        <option>All categories</option>
+        <option>Contract</option>
+        <option>Financial</option>
+        <option>Identity</option>
+        <option>Legal</option>
+      </select>
+      <select class="form-control" style="width:auto;">
+        <option>Newest first</option>
+        <option>Oldest first</option>
+        <option>Name A–Z</option>
+        <option>Largest first</option>
+      </select>
+    </div>
+
+    <!-- List view (default) -->
+    <div id="listView">
+      <div class="table-wrapper">
+        <table id="docsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th>Integrity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-status="verified">
+              <td><div class="file-name"><span class="file-icon">📄</span> contract_v2.pdf</div></td>
+              <td><span class="badge badge-gray">Contract</span></td>
+              <td style="font-size:0.82rem; color:var(--text-3);">2.4 MB</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">May 21, 2026</td>
+              <td><span class="badge badge-green">✓ Verified</span></td>
+              <td>
+                <div class="table-actions">
+                  <a href="/documents/1" class="btn btn-ghost btn-icon btn-sm" title="View details">👁️</a>
+                  <a href="/documents/1/download" class="btn btn-ghost btn-icon btn-sm" title="Download">⬇️</a>
+                  <a href="/documents/verify?id=1" class="btn btn-ghost btn-icon btn-sm" title="Verify">✅</a>
+                  <button class="btn btn-danger btn-icon btn-sm" title="Delete" onclick="confirmDelete(1, 'contract_v2.pdf')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-status="verified">
+              <td><div class="file-name"><span class="file-icon">📊</span> financial_report_q1.xlsx</div></td>
+              <td><span class="badge badge-gray">Financial</span></td>
+              <td style="font-size:0.82rem; color:var(--text-3);">1.1 MB</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">May 20, 2026</td>
+              <td><span class="badge badge-green">✓ Verified</span></td>
+              <td>
+                <div class="table-actions">
+                  <a href="/documents/2" class="btn btn-ghost btn-icon btn-sm">👁️</a>
+                  <a href="/documents/2/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                  <a href="/documents/verify?id=2" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                  <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete(2, 'financial_report_q1.xlsx')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-status="pending">
+              <td><div class="file-name"><span class="file-icon">📝</span> nda_signed.docx</div></td>
+              <td><span class="badge badge-gray">Legal</span></td>
+              <td style="font-size:0.82rem; color:var(--text-3);">340 KB</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">May 18, 2026</td>
+              <td><span class="badge badge-amber">⏳ Pending</span></td>
+              <td>
+                <div class="table-actions">
+                  <a href="/documents/3" class="btn btn-ghost btn-icon btn-sm">👁️</a>
+                  <a href="/documents/3/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                  <a href="/documents/verify?id=3" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                  <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete(3, 'nda_signed.docx')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr data-status="modified">
+              <td><div class="file-name"><span class="file-icon">🖼️</span> id_scan.png</div></td>
+              <td><span class="badge badge-gray">Identity</span></td>
+              <td style="font-size:0.82rem; color:var(--text-3);">876 KB</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">May 15, 2026</td>
+              <td><span class="badge badge-red">✗ Modified</span></td>
+              <td>
+                <div class="table-actions">
+                  <a href="/documents/4" class="btn btn-ghost btn-icon btn-sm">👁️</a>
+                  <a href="/documents/4/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                  <a href="/documents/verify?id=4" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                  <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete(4, 'id_scan.png')">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Grid view (hidden by default) -->
+    <div id="gridView" style="display:none;">
+      <div class="doc-grid">
+        <div class="doc-card">
+          <div class="doc-card-icon">📄</div>
+          <div class="doc-card-name">contract_v2.pdf</div>
+          <div class="doc-card-meta">2.4 MB · May 21</div>
+          <span class="badge badge-green" style="width:fit-content;">✓ Verified</span>
+          <div class="doc-card-actions">
+            <a href="/documents/1/download" class="btn btn-secondary btn-sm" style="flex:1;">⬇️ Download</a>
+            <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">📊</div>
+          <div class="doc-card-name">financial_report_q1.xlsx</div>
+          <div class="doc-card-meta">1.1 MB · May 20</div>
+          <span class="badge badge-green" style="width:fit-content;">✓ Verified</span>
+          <div class="doc-card-actions">
+            <a href="/documents/2/download" class="btn btn-secondary btn-sm" style="flex:1;">⬇️ Download</a>
+            <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">📝</div>
+          <div class="doc-card-name">nda_signed.docx</div>
+          <div class="doc-card-meta">340 KB · May 18</div>
+          <span class="badge badge-amber" style="width:fit-content;">⏳ Pending</span>
+          <div class="doc-card-actions">
+            <a href="/documents/3/download" class="btn btn-secondary btn-sm" style="flex:1;">⬇️ Download</a>
+            <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">🖼️</div>
+          <div class="doc-card-name">id_scan.png</div>
+          <div class="doc-card-meta">876 KB · May 15</div>
+          <span class="badge badge-red" style="width:fit-content;">✗ Modified</span>
+          <div class="doc-card-actions">
+            <a href="/documents/4/download" class="btn btn-secondary btn-sm" style="flex:1;">⬇️ Download</a>
+            <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-backdrop" id="deleteModal" style="display:none;" onclick="if(event.target===this) this.style.display='none'">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>Delete document</h3>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="document.getElementById('deleteModal').style.display='none'">✕</button>
+    </div>
+    <p style="color:var(--text-2); font-size:0.9rem;">
+      Are you sure you want to permanently delete <strong id="deleteFileName" style="color:var(--text-1);"></strong>? This action cannot be undone.
+    </p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
+      <form id="deleteForm" method="POST" style="display:inline;">
+        <input type="hidden" name="_method" value="DELETE" />
+        <button type="submit" class="btn btn-danger">Delete permanently</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  let isGrid = false;
+
+  function toggleView() {
+    isGrid = !isGrid;
+    document.getElementById('listView').style.display = isGrid ? 'none' : 'block';
+    document.getElementById('gridView').style.display = isGrid ? 'block' : 'none';
+    document.getElementById('toggleView').textContent  = isGrid ? '☰ List view' : '⊞ Grid view';
+  }
+
+  function filterDocs(query) {
+    document.querySelectorAll('#docsTable tbody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  function filterStatus(status) {
+    document.querySelectorAll('#docsTable tbody tr').forEach(row => {
+      row.style.display = (!status || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  function confirmDelete(id, name) {
+    document.getElementById('deleteFileName').textContent = name;
+    document.getElementById('deleteForm').action = `/documents/${id}/delete`;
+    document.getElementById('deleteModal').style.display = 'flex';
+  }
+</script>
+</body>
+</html>

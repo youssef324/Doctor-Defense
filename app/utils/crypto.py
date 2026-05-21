@@ -10,8 +10,8 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 # pyrefly: ignore [missing-import]
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-PRIVATE_KEY = None
-PUBLIC_KEY = None
+PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
+PUBLIC_KEY = os.environ.get('PUBLIC_KEY')
 
 
 def init_keys(instance_path):

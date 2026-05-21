@@ -1,3 +1,4 @@
+from urllib import response
 import os
 
 # pyrefly: ignore [missing-import]
@@ -16,10 +17,16 @@ jwt = JWTManager()
 migrate = Migrate()
 
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
+    if app.config.get('JWT_COOKIE_SECURE'):
+        @app.before_request
+        def enforce_https():
+            if not request.is_secure and not app.debug:
+                url = request.url.replace('http://', 'https://', 1)
+                return redirect(url, code=301)
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
@@ -80,5 +87,12 @@ def create_app():
     @app.route('/')
     def index():
         return redirect(url_for('auth.login'))
-
+    @app.after_request
+    def set_security_headers(response):
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        return response
     return app

@@ -1,130 +1,273 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="app-shell">
 
-{% if show_2fa_complete %}
-<div class="alert alert-success border-0 shadow-sm mb-4">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div>
-            <h5 class="mb-1"><i class="fas fa-check-circle"></i> Step 4: Test your 2FA login</h5>
-            <p class="mb-0 small">2FA is enabled. Log out, then sign in again using your password <strong>and</strong> the 6-digit code from your authenticator app.</p>
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔐</div>
+      DocVault
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">HTTPS Secure</div>
+      <span style="font-size:0.825rem; color:var(--text-2);">John Doe</span>
+      <div class="avatar" title="Profile">JD</div>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Sign out</a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-link active">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a href="/documents" class="nav-link">
+      <span class="nav-icon">📁</span> My Documents
+    </a>
+    <a href="/documents/upload" class="nav-link">
+      <span class="nav-icon">⬆️</span> Upload
+    </a>
+    <a href="/documents/verify" class="nav-link">
+      <span class="nav-icon">✅</span> Verify Document
+    </a>
+
+    <span class="nav-section-label">Account</span>
+    <a href="/profile" class="nav-link">
+      <span class="nav-icon">👤</span> Profile
+    </a>
+    <a href="/profile/2fa" class="nav-link">
+      <span class="nav-icon">🔐</span> Two-Factor Auth
+    </a>
+    <a href="/profile/security" class="nav-link">
+      <span class="nav-icon">🛡️</span> Security Log
+    </a>
+
+    <!-- Admin only -->
+    <span class="nav-section-label">Administration</span>
+    <a href="/admin/users" class="nav-link">
+      <span class="nav-icon">👥</span> Manage Users
+    </a>
+    <a href="/admin/audit" class="nav-link">
+      <span class="nav-icon">📋</span> Audit Log
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">JD</div>
+        <div class="user-meta">
+          <div class="name">John Doe</div>
+          <div class="role">Administrator</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-warning">
-            <i class="fas fa-sign-out-alt"></i> Log Out & Test Login
-        </a>
+      </div>
     </div>
-</div>
-{% endif %}
+  </nav>
 
-<div class="row">
-    <div class="col-12 text-center mb-5">
-        <h1 class="hero-text">Welcome Back, {{ user.username }}</h1>
-        <p class="hero-subtext mb-0"><strong style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight:700;">Private. Protected. Always accessible.</strong></p>
+  <!-- Main Content -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Dashboard</h1>
+        <p>Welcome back, John. Here's what's happening with your vault.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="/documents/upload" class="btn btn-primary">⬆️ Upload Document</a>
+      </div>
     </div>
-</div>
 
-<!-- Security Status Bar -->
-<div class="row mb-5 align-items-stretch">
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-body d-flex align-items-center h-100">
-                <div class="me-4">
-                    <i class="fas fa-{{ 'check-circle text-success' if twofa_enabled else 'exclamation-triangle text-warning' }} fa-3x"></i>
-                </div>
-                <div>
-                    <h5 class="hero-subtext mb-2">Two-Factor Authentication</h5>
-                    <h4>
-                        <span class="badge bg-{{ 'success' if twofa_enabled else 'warning' }} fs-6">
-                            {{ 'ENABLED' if twofa_enabled else 'NOT ENABLED' }}
-                        </span>
-                    </h4>
-                </div>
+    <!-- Stats -->
+    <div class="stats-grid stagger">
+      <div class="stat-card">
+        <div class="stat-icon blue">📁</div>
+        <div class="stat-info">
+          <div class="value">48</div>
+          <div class="label">Total documents</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+          <div class="value">46</div>
+          <div class="label">Verified & intact</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">⬆️</div>
+        <div class="stat-info">
+          <div class="value">3</div>
+          <div class="label">Uploaded this week</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info">
+          <div class="value">2</div>
+          <div class="label">Pending review</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 340px; gap:1.5rem; align-items:start;">
+
+      <!-- Recent Documents -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent documents</h3>
+          <a href="/documents" class="btn btn-ghost btn-sm">View all →</a>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="file-name">
+                    <span class="file-icon">📄</span>
+                    contract_v2.pdf
+                  </div>
+                </td>
+                <td>2.4 MB</td>
+                <td>Today, 10:22</td>
+                <td><span class="badge badge-green">✓ Verified</span></td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/documents/1/download" class="btn btn-ghost btn-icon btn-sm" title="Download">⬇️</a>
+                    <a href="/documents/verify?id=1" class="btn btn-ghost btn-icon btn-sm" title="Verify">✅</a>
+                    <button class="btn btn-danger btn-icon btn-sm" title="Delete">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="file-name">
+                    <span class="file-icon">📊</span>
+                    financial_report_q1.xlsx
+                  </div>
+                </td>
+                <td>1.1 MB</td>
+                <td>Yesterday, 14:05</td>
+                <td><span class="badge badge-green">✓ Verified</span></td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/documents/2/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                    <a href="/documents/verify?id=2" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                    <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="file-name">
+                    <span class="file-icon">📝</span>
+                    nda_signed.docx
+                  </div>
+                </td>
+                <td>340 KB</td>
+                <td>May 18, 09:47</td>
+                <td><span class="badge badge-amber">⏳ Pending</span></td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/documents/3/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                    <a href="/documents/verify?id=3" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                    <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="file-name">
+                    <span class="file-icon">🖼️</span>
+                    id_scan.png
+                  </div>
+                </td>
+                <td>876 KB</td>
+                <td>May 15, 16:30</td>
+                <td><span class="badge badge-red">✗ Modified</span></td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/documents/4/download" class="btn btn-ghost btn-icon btn-sm">⬇️</a>
+                    <a href="/documents/verify?id=4" class="btn btn-ghost btn-icon btn-sm">✅</a>
+                    <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+
+        <!-- Security status -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Security status</h3>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+              <span style="color:var(--text-2);">🔐 Two-factor auth</span>
+              <span class="badge badge-green">Enabled</span>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-body d-flex align-items-center h-100">
-                <div class="me-4">
-                    <i class="fas fa-lock fa-3x text-primary"></i>
-                </div>
-                <div>
-                    <h5 class="hero-subtext mb-2">Documents Secured</h5>
-                    <h4 class="hero-subtext mb-0"><strong>{{ documents|length }}</strong> files</h4>
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+              <span style="color:var(--text-2);">🔒 Password strength</span>
+              <span class="badge badge-green">Strong</span>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Your Secure Documents</h3>
-    <a href="{{ url_for('documents.upload') }}" class="btn btn-primary btn-lg">
-        <i class="fas fa-cloud-upload-alt"></i> Upload New Documents
-    </a>
-</div>
-
-<!-- Documents Grid -->
-<div class="row">
-    {% for doc in documents %}
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title text-truncate doc-card-meta">{{ doc.original_filename }}</h5>
-                <p class="small doc-card-meta">
-                    {{ (doc.size / 1024)|round(1) }} KB • {{ doc.uploaded_at.strftime('%b %d, %Y') }}
-                </p>
-                
-                <form method="POST" action="{{ url_for('documents.download', doc_id=doc.id) }}">
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control doc-password-input" placeholder="Enter Password for Decryption" required>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100 mb-2">
-                        <i class="fas fa-download"></i> Download & Decrypt
-                    </button>
-                </form>
-                
-                <a href="{{ url_for('documents.verify', doc_id=doc.id) }}" class="btn btn-outline-info w-100 mb-2">
-                    <i class="fas fa-check-circle"></i> Verify Integrity
-                </a>
-
-                <form method="POST" action="{{ url_for('documents.delete_document', doc_id=doc.id) }}"
-                      onsubmit="return confirm('Delete this document permanently?');">
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control doc-password-input" placeholder="Password to confirm delete" required>
-                    </div>
-                    <button type="submit" class="btn btn-outline-danger w-100">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </form>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+              <span style="color:var(--text-2);">🌐 Connection</span>
+              <span class="badge badge-green">HTTPS</span>
             </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+              <span style="color:var(--text-2);">📅 Last login</span>
+              <span style="color:var(--text-1); font-size:0.8rem;">Today, 09:15</span>
+            </div>
+          </div>
         </div>
-    </div>
-    {% else %}
-    <div class="col-12 text-center py-5">
-        <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
-        <p class="text-muted">No documents yet. Upload your first document!</p>
-    </div>
-    {% endfor %}
-</div>
 
-<!-- Action Buttons -->
-<div class="mt-5 d-flex gap-3 flex-wrap">
-    <a href="{{ url_for('auth.setup_2fa') }}" class="btn btn-warning">
-        <i class="fas fa-shield-alt"></i> 
-        {{ 'Manage 2FA' if twofa_enabled else 'Setup 2FA Now' }}
-    </a>
-    
-    {% if user.role in ['Admin', 'Manager'] %}
-    <a href="{{ url_for('admin.all_documents') }}" class="btn btn-info">
-        <i class="fas fa-users"></i> View All Documents
-    </a>
-    {% endif %}
-    
-    {% if user.role == 'Admin' %}
-    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-danger">
-        <i class="fas fa-user-cog"></i> Manage Users
-    </a>
-    {% endif %}
+        <!-- Storage -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Storage</h3>
+            <span style="font-size:0.8rem; color:var(--text-3);">2.4 GB / 10 GB</span>
+          </div>
+          <div class="progress-wrap" style="margin-bottom:8px;">
+            <div class="progress-bar" style="width:24%;"></div>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-3);">7.6 GB remaining</p>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Quick actions</h3>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <a href="/documents/upload" class="btn btn-secondary btn-block">⬆️ Upload document</a>
+            <a href="/documents/verify" class="btn btn-secondary btn-block">✅ Verify a file</a>
+            <a href="/profile/2fa" class="btn btn-secondary btn-block">🔐 Manage 2FA</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
 </div>
-{% endblock %}
+</body>
+</html>
