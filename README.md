@@ -53,37 +53,37 @@
 ## ✨ Features
 
 ### 🔐 Security Features
-- ✅ **End-to-End Encryption** - AES-256-GCM encryption with secure key derivation (Scrypt)
-- ✅ **Digital Signatures** - RSA-2048 signatures with SHA-256 hashing
-- ✅ **Two-Factor Authentication** - TOTP-based 2FA with QR code setup
-- ✅ **Password Security** - Bcrypt hashing with enforced password policy
-- ✅ **OAuth 2.0** - GitHub and Google OAuth login support
-- ✅ **HTTPS Enforcement** - Automatic redirect with HSTS headers
-- ✅ **Security Headers** - CSP, X-Frame-Options, X-XSS-Protection
-- ✅ **CSRF Protection** - JWT-based CSRF tokens in cookies
+-  **End-to-End Encryption** - AES-256-GCM encryption with secure key derivation (Scrypt)
+-  **Digital Signatures** - RSA-2048 signatures with SHA-256 hashing
+-  **Two-Factor Authentication** - TOTP-based 2FA with QR code setup
+-  **Password Security** - Bcrypt hashing with enforced password policy
+-  **OAuth 2.0** - GitHub and Google OAuth login support
+-  **HTTPS Enforcement** - Automatic redirect with HSTS headers
+-  **Security Headers** - CSP, X-Frame-Options, X-XSS-Protection
+-  **CSRF Protection** - JWT-based CSRF tokens in cookies
 
 ### 📁 Document Management
-- ✅ **Multi-file Upload** - Drag-and-drop upload with progress tracking
-- ✅ **Encryption on Upload** - Automatic AES-256 encryption before storage
-- ✅ **Integrity Verification** - Digital signature verification on download
-- ✅ **File Metadata** - Size, type, upload timestamp, and owner tracking
-- ✅ **Document Sharing** - Role-based access for Admin/Manager users
-- ✅ **File Type Validation** - Supported: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP, RAR
-- ✅ **Size Limits** - Maximum 50MB per file
+-  **Multi-file Upload** - Drag-and-drop upload with progress tracking
+-  **Encryption on Upload** - Automatic AES-256 encryption before storage
+-  **Integrity Verification** - Digital signature verification on download
+-  **File Metadata** - Size, type, upload timestamp, and owner tracking
+-  **Document Sharing** - Role-based access for Admin/Manager users
+-  **File Type Validation** - Supported: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP, RAR
+-  **Size Limits** - Maximum 50MB per file
 
 ### 👥 User Management
-- ✅ **User Registration** - Self-service registration with password policy
-- ✅ **Role Assignment** - Three-tier role system (Admin, Manager, User)
-- ✅ **Admin Panel** - User and role management interface
-- ✅ **Session Management** - JWT tokens with automatic expiration (2 hours)
-- ✅ **Activity Tracking** - Document access and modification logs
+-  **User Registration** - Self-service registration with password policy
+-  **Role Assignment** - Three-tier role system (Admin, Manager, User)
+-  **Admin Panel** - User and role management interface
+-  **Session Management** - JWT tokens with automatic expiration (2 hours)
+-  **Activity Tracking** - Document access and modification logs
 
 ### 🎨 User Experience
-- ✅ **Responsive Design** - Mobile-first design with Bootstrap 5
-- ✅ **Real-time Feedback** - Toast notifications and error handling
-- ✅ **AJAX Upload** - Non-blocking file uploads with progress bars
-- ✅ **Dark Theme** - Professional dark UI with accent colors
-- ✅ **Intuitive Navigation** - Easy-to-use dashboard and controls
+-  **Responsive Design** - Mobile-first design with Bootstrap 5
+-  **Real-time Feedback** - Toast notifications and error handling
+-  **AJAX Upload** - Non-blocking file uploads with progress bars
+-  **Dark Theme** - Professional dark UI with accent colors
+-  **Intuitive Navigation** - Easy-to-use dashboard and controls
 
 ---
 
