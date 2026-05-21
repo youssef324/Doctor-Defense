@@ -1,26 +1,45 @@
-<!-- README.md for Doctor-Defense Project -->
-<div align="center">
-  <h1>🏥 Doctor-Defense: Secure Document Vault System</h1>
-  <p>
-    <strong>A modern, enterprise-grade secure document management platform with end-to-end encryption, digital signatures, and role-based access control.</strong>
-  </p>
-   
-  [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)](https://www.python.org/)
-  [![Flask](https://img.shields.io/badge/Flask-2.0+-green?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
-  [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1.4+-red?style=flat-square&logo=database)](https://www.sqlalchemy.org/)
-  [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-  [![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=flat-square)](#)
+# 🏥 Doctor-Defense: Secure Document  System
 
-  [Features](#-features) • [Architecture](#-architecture) • [Installation](#-installation) • [Usage](#-usage) • [Security](#-security) • [Deployment](#-deployment)
-</div>
+<p align="center">
+  <b>
+    A modern, enterprise-grade secure document management platform with end-to-end encryption,
+    digital signatures, and role-based access control.
+  </b>
+</p>
 
 ---
 
-## 📋 Table of Contents
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,flask,postgresql,bootstrap,docker,nginx,github,git,vscode&theme=dark" />
+</p>
 
-- [Overview](#-overview)
+<p align="center">
+  <img src="https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Auth-JWT-black?style=for-the-badge&logo=jsonwebtokens" />
+  <img src="https://img.shields.io/badge/OAuth-Google%20%26%20GitHub-blue?style=for-the-badge&logo=google" />
+  <img src="https://img.shields.io/badge/Encryption-AES256-success?style=for-the-badge&logo=letsencrypt" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge" />
+</p>
+
+<p align="center">
+  <a href="#-features">🚀 Features</a> •
+  <a href="#-architecture">🏗 Architecture</a> •
+  <a href="#-installation--setup">⚙️ Installation</a> •
+  <a href="#-security-features">🔐 Security</a> •
+  <a href="#-deployment">🌐 Deployment</a>
+</p>
+
+---
+
+# 📋 Table of Contents
+
+- [🎯 Overview](#-overview)
 - [✨ Features](#-features)
-- [🏗️ Architecture](#-architecture)
+- [🏗 Architecture](#-architecture)
 - [👥 User Roles & Permissions](#-user-roles--permissions)
 - [🔧 Development Stack](#-development-stack)
 - [💾 Database Schema](#-database-schema)
@@ -35,87 +54,93 @@
 
 ---
 
-## 🎯 Overview
+# 🎯 Overview
 
-**Doctor-Defense** is a secure, enterprise-grade document management system designed to protect sensitive information with military-grade encryption, digital signatures, and comprehensive access controls. Built with modern security practices, it ensures documents are encrypted at rest, authenticated with digital signatures, and accessible only to authorized users.
+**Doctor-Defense** is a secure, enterprise-grade document management system designed to protect sensitive information using military-grade encryption, digital signatures, and comprehensive access control mechanisms.
 
-### Key Highlights
-- 🔐 **AES-256-GCM** encryption for stored documents
-- 🖊️ **RSA-2048** digital signatures for document integrity
-- 🔑 **Mandatory 2FA** for all users
-- 👥 **Role-Based Access Control** (Admin, Manager, User)
-- 🔓 **OAuth 2.0** integration (Google & GitHub)
-- 🌐 **HTTPS enforcement** with security headers
-- 📊 **Beautiful responsive UI** with real-time feedback
+## Core Highlights
 
----
-
-## ✨ Features
-
-### 🔐 Security Features
--  **End-to-End Encryption** - AES-256-GCM encryption with secure key derivation (Scrypt)
--  **Digital Signatures** - RSA-2048 signatures with SHA-256 hashing
--  **Two-Factor Authentication** - TOTP-based 2FA with QR code setup
--  **Password Security** - Bcrypt hashing with enforced password policy
--  **OAuth 2.0** - GitHub and Google OAuth login support
--  **HTTPS Enforcement** - Automatic redirect with HSTS headers
--  **Security Headers** - CSP, X-Frame-Options, X-XSS-Protection
--  **CSRF Protection** - JWT-based CSRF tokens in cookies
-
-### 📁 Document Management
--  **Multi-file Upload** - Drag-and-drop upload with progress tracking
--  **Encryption on Upload** - Automatic AES-256 encryption before storage
--  **Integrity Verification** - Digital signature verification on download
--  **File Metadata** - Size, type, upload timestamp, and owner tracking
--  **Document Sharing** - Role-based access for Admin/Manager users
--  **File Type Validation** - Supported: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP, RAR
--  **Size Limits** - Maximum 50MB per file
-
-### 👥 User Management
--  **User Registration** - Self-service registration with password policy
--  **Role Assignment** - Three-tier role system (Admin, Manager, User)
--  **Admin Panel** - User and role management interface
--  **Session Management** - JWT tokens with automatic expiration (2 hours)
--  **Activity Tracking** - Document access and modification logs
-
-### 🎨 User Experience
--  **Responsive Design** - Mobile-first design with Bootstrap 5
--  **Real-time Feedback** - Toast notifications and error handling
--  **AJAX Upload** - Non-blocking file uploads with progress bars
--  **Dark Theme** - Professional dark UI with accent colors
--  **Intuitive Navigation** - Easy-to-use dashboard and controls
+- 🔐 AES-256-GCM Encryption
+- 🖊️ RSA-2048 Digital Signatures
+- 👥 Role-Based Access Control (RBAC)
+- 🔑 Mandatory Two-Factor Authentication (2FA)
+- 🌐 OAuth Authentication
+- 📊 Responsive Modern Dashboard
 
 ---
 
-## 🏗️ Architecture
+# ✨ Features
 
-### System Architecture Diagram
+## 🔐 Security Features
 
-```
+- AES-256-GCM Encryption
+- RSA-2048 Digital Signatures
+- TOTP-based Two-Factor Authentication
+- Bcrypt Password Hashing
+- OAuth 2.0 Authentication
+- HTTPS Enforcement
+- CSP Security Headers
+- CSRF Protection
+- JWT Authentication
+
+---
+
+## 📁 Document Management
+
+- Multi-file Upload
+- Drag & Drop Support
+- Automatic Encryption on Upload
+- Digital Signature Generation
+- File Integrity Verification
+- File Metadata Tracking
+- Role-Based Sharing
+- File Type Validation
+- Maximum Upload Size: 50MB
+
+---
+
+## 👥 User Management
+
+- User Registration System
+- Role Assignment System
+- Admin Dashboard
+- JWT Session Management
+- User Activity Logging
+
+---
+
+## 🎨 User Experience
+
+- Responsive Bootstrap 5 Interface
+- AJAX File Upload
+- Real-Time Notifications
+- Dark Theme Dashboard
+- Interactive User Interface
+
+---
+
+# 🏗 Architecture
+
+## System Architecture Diagram
+
+```text
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (UI Layer)                       │
-│  ┌──────────────────┬──────────────────┬──────────────────┐    │
-│  │  Dashboard      │  Upload Portal   │  Admin Panel     │    │
-│  │  HTML/CSS/JS    │  HTML/CSS/JS     │  HTML/CSS/JS     │    │
-│  └──────────────────┴──────────────────┴──────────────────┘    │
+│                    Frontend (UI Layer)                         │
+│ ┌────────────────┬────────────────┬─────────────────────────┐  │
+│ │ Dashboard      │ Upload Portal  │ Admin Panel             │  │
+│ │ HTML/CSS/JS    │ HTML/CSS/JS    │ HTML/CSS/JS             │  │
+│ └────────────────┴────────────────┴─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
+                              │
                               ▼ HTTPS
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Backend API Layer (Flask)                    │
-│  ┌────────────────┬──────────────────┬──────────────────┐      │
-│  │  Auth Routes   │  Document Routes │  Admin Routes    │      │
-│  │  /auth/login   │  /upload         │  /admin/users    │      │
-│  │  /auth/2fa     │  /download       │  /admin/docs     │      │
-│  │  /oauth/*      │  /verify         │  /admin/roles    │      │
-│  └────────────────┴──────────────────┴──────────────────┘      │
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────┐       │
-│  │           Security & Middleware Layer                │       │
-│  │  JWT Verification • HTTPS Redirect • CSRF Protection │       │
-│  │  Security Headers • Rate Limiting • Access Control   │       │
-│  └──────────────────────────────────────────────────────┘       │
-└─────────────────────────────────────────────────────────────────┘
-                              ▼
+│                     Backend API Layer                          │
+│ ┌──────────────┬────────────────┬───────────────────────────┐ │
+│ │ Auth Routes  │ Document APIs  │ Admin APIs                │ │
+│ │ /auth/*      │ /upload        │ /admin/*                  │ │
+│ │ /oauth/*     │ /download      │ /admin/users              │ │
+│ └──────────────┴────────────────┴───────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Cryptography Layer                              │
 │  ┌──────────────────┬──────────────────┬─────────────────┐    │
