@@ -1,58 +1,172 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-lg-5 col-md-7">
-        <div class="auth-card p-5">
-            <div class="text-center mb-4">
-                <i class="fas fa-shield-alt fa-4x text-primary mb-3"></i>
-                <h2 class="hero-text">Where your important files stay truly safe</h2>
-                {% if requires_2fa %}
-                <p class="text-warning"><i class="fas fa-lock"></i> Sign in with your 2FA code</p>
-                {% endif %}
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem;">
+  <div style="width:100%; max-width:460px;">
 
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label auth-label-accent">Username</label>
-                    <input type="text" name="username" class="form-control auth-input" required
-                           value="{{ username_value or '' }}">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label auth-label-accent">Password</label>
-                    <input type="password" name="password" class="form-control auth-input" required>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label auth-label-accent">
-                        2FA Code
-                        {% if requires_2fa %}
-                        <span class="text-warning">(required)</span>
-                        {% else %}
-                        <small style="color: #00ff9d;">(only after you enable 2FA)</small>
-                        {% endif %}
-                    </label>
-                    <input type="text" name="totp_code" class="form-control auth-input text-center"
-                           placeholder="000000" maxlength="6" inputmode="numeric"
-                           {% if requires_2fa %}required autofocus{% endif %}>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 py-3">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
-
-                <div class="d-flex gap-2 mt-3">
-                    <a href="{{ url_for('oauth.google_login') }}" class="btn btn-outline-light flex-fill">
-                        <i class="fab fa-google"></i> Continue with Google
-                    </a>
-                    <a href="{{ url_for('oauth.github_login') }}" class="btn btn-outline-light flex-fill">
-                        <i class="fab fa-github"></i> Continue with GitHub
-                    </a>
-                </div>
-            </form>
-
-            <p class="text-center mt-4 mb-0">
-                Don't have an account?
-                <a href="{{ url_for('auth.register') }}" class="text-primary">Register</a>
-            </p>
-        </div>
+    <!-- Logo -->
+    <div style="display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:2rem;">
+      <div style="width:38px; height:38px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔐</div>
+      <span style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--text-1);">DocVault</span>
     </div>
+
+    <div style="background:var(--navy-2); border:1px solid var(--border); border-radius:var(--radius-xl); padding:2.5rem;">
+    <div class="auth-form-wrap" style="max-width:100%;">
+
+      <!-- Flash messages from Flask -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'error' if category == 'danger' else category }}" style="margin-bottom:1rem;">
+            <span class="alert-icon">{{ '✅' if category == 'success' else ('ℹ️' if category == 'info' else '⚠️') }}</span>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <!-- Normal login view -->
+      {% if not requires_2fa %}
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your secure vault</p>
+
+        <form action="/auth/login" method="POST" autocomplete="off">
+
+          <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <div class="input-group">
+              <span class="input-icon">👤</span>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-control"
+                placeholder="Your username"
+                value="{{ username_value or '' }}"
+                required
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div class="input-group">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-control"
+                placeholder="Your password"
+                required
+                autocomplete="current-password"
+              />
+              <button type="button" class="input-action" onclick="togglePassword('password', this)" aria-label="Show password">👁️</button>
+            </div>
+          </div>
+
+          <!-- Hidden totp_code so form always has the key (empty = skip 2FA check) -->
+          <input type="hidden" name="totp_code" value="" />
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:0.5rem;">
+            Sign in
+          </button>
+        </form>
+
+        <div class="divider">or continue with</div>
+
+        <div class="oauth-buttons">
+          <a href="/auth/github" class="btn-oauth">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            Continue with GitHub
+          </a>
+          <a href="/auth/google" class="btn-oauth">
+            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </a>
+        </div>
+
+        <p style="text-align:center; margin-top:1.5rem; font-size:0.875rem; color:var(--text-3);">
+          Don't have an account? <a href="/auth/register">Create one</a>
+        </p>
+
+      <!-- 2FA step — shown when requires_2fa=True is passed from Flask -->
+      {% else %}
+        <div style="text-align:center; margin-bottom:1.5rem;">
+          <div style="font-size:2.5rem; margin-bottom:0.75rem;">🔐</div>
+          <h1 style="font-size:1.5rem; margin-bottom:0.4rem;">Two-factor authentication</h1>
+          <p class="subtitle">Enter the 6-digit code from your authenticator app</p>
+        </div>
+
+        <form action="/auth/login" method="POST" id="otpForm" autocomplete="off">
+          <!-- Re-submit credentials silently -->
+          <input type="hidden" name="username" value="{{ username_value or '' }}" />
+          <input type="hidden" name="password" value="" />
+
+          <div class="otp-inputs" id="otpInputs" style="margin-bottom:1.5rem;">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" />
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+          </div>
+          <input type="hidden" name="totp_code" id="otpHidden" />
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg">Verify & sign in</button>
+        </form>
+
+        <p style="text-align:center; margin-top:1.25rem; font-size:0.85rem;">
+          <a href="/auth/login" style="color:var(--text-3);">← Use a different account</a>
+        </p>
+
+      {% endif %}
+
+    </div>
+    </div>
+  </div>
 </div>
-{% endblock %}
+
+<script>
+  function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+  }
+
+  // OTP input auto-advance (only active when 2FA form is shown)
+  const otpInputs = document.querySelectorAll('.otp-input');
+  if (otpInputs.length) {
+    otpInputs.forEach((inp, i) => {
+      inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < otpInputs.length - 1) otpInputs[i + 1].focus();
+        syncOtp();
+      });
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) otpInputs[i - 1].focus();
+      });
+      inp.addEventListener('paste', e => {
+        e.preventDefault();
+        const data = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        data.split('').forEach((ch, j) => { if (otpInputs[j]) otpInputs[j].value = ch; });
+        syncOtp();
+        const last = otpInputs[Math.min(data.length, otpInputs.length - 1)];
+        if (last) last.focus();
+      });
+    });
+    otpInputs[0].focus();
+  }
+
+  function syncOtp() {
+    const hidden = document.getElementById('otpHidden');
+    if (hidden) hidden.value = [...otpInputs].map(i => i.value).join('');
+  }
+</script>
+</body>
+</html>

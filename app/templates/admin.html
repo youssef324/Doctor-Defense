@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔐</div>
+      DocVault
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">HTTPS Secure</div>
+      <span style="font-size:0.825rem; color:var(--text-2);">John Doe</span>
+      <div class="avatar">JD</div>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Sign out</a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/documents" class="nav-link"><span class="nav-icon">📁</span> My Documents</a>
+    <a href="/documents/upload" class="nav-link"><span class="nav-icon">⬆️</span> Upload</a>
+    <a href="/documents/verify" class="nav-link"><span class="nav-icon">✅</span> Verify Document</a>
+    <span class="nav-section-label">Account</span>
+    <a href="/profile" class="nav-link"><span class="nav-icon">👤</span> Profile</a>
+    <a href="/profile/2fa" class="nav-link"><span class="nav-icon">🔐</span> Two-Factor Auth</a>
+    <a href="/profile/security" class="nav-link"><span class="nav-icon">🛡️</span> Security Log</a>
+    <span class="nav-section-label">Administration</span>
+    <a href="/admin/users" class="nav-link active"><span class="nav-icon">👥</span> Manage Users</a>
+    <a href="/admin/audit" class="nav-link"><span class="nav-icon">📋</span> Audit Log</a>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">JD</div>
+        <div class="user-meta">
+          <div class="name">John Doe</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Admin Panel</h1>
+        <p>Manage users, roles, and system activity.</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-primary" onclick="document.getElementById('inviteModal').style.display='flex'">
+          ➕ Invite user
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin stats -->
+    <div class="stats-grid stagger" style="margin-bottom:2rem;">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+          <div class="value">24</div>
+          <div class="label">Total users</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+          <div class="value">21</div>
+          <div class="label">Active accounts</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">📁</div>
+        <div class="stat-info">
+          <div class="value">312</div>
+          <div class="label">Total documents</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info">
+          <div class="value">3</div>
+          <div class="label">Flagged documents</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('users', this)">Users</button>
+      <button class="tab" onclick="switchTab('audit', this)">Audit Log</button>
+      <button class="tab" onclick="switchTab('docs', this)">All Documents</button>
+    </div>
+
+    <!-- ── Users Tab ── -->
+    <div id="tab-users">
+      <div class="filters-bar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search users by name or email..." oninput="filterTable(this.value)" />
+        </div>
+        <select class="form-control" style="width:auto;" onchange="filterRole(this.value)">
+          <option value="">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="manager">Manager</option>
+          <option value="user">User</option>
+        </select>
+        <select class="form-control" style="width:auto;">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>2FA</th>
+              <th>Documents</th>
+              <th>Last login</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="avatar" style="font-size:0.7rem;">JD</div>
+                  <div>
+                    <div style="font-weight:500; color:var(--text-1); font-size:0.875rem;">John Doe</div>
+                    <div style="font-size:0.75rem; color:var(--text-3);">john@example.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <select class="role-select" onchange="updateRole(1, this.value)">
+                  <option value="admin" selected>Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="user">User</option>
+                </select>
+              </td>
+              <td><span class="badge badge-green">✓ On</span></td>
+              <td>48</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">Today, 09:15</td>
+              <td><span class="badge badge-green">Active</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" title="View details">👁️</button>
+                  <button class="btn btn-danger btn-icon btn-sm" title="Deactivate">🚫</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="avatar" style="font-size:0.7rem;">SA</div>
+                  <div>
+                    <div style="font-weight:500; color:var(--text-1); font-size:0.875rem;">Sara Ahmed</div>
+                    <div style="font-size:0.75rem; color:var(--text-3);">sara@example.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <select class="role-select" onchange="updateRole(2, this.value)">
+                  <option value="admin">Admin</option>
+                  <option value="manager" selected>Manager</option>
+                  <option value="user">User</option>
+                </select>
+              </td>
+              <td><span class="badge badge-green">✓ On</span></td>
+              <td>17</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">Yesterday</td>
+              <td><span class="badge badge-green">Active</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-danger btn-icon btn-sm">🚫</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="avatar" style="font-size:0.7rem;">MK</div>
+                  <div>
+                    <div style="font-weight:500; color:var(--text-1); font-size:0.875rem;">Mohamed Karim</div>
+                    <div style="font-size:0.75rem; color:var(--text-3);">mkarim@example.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <select class="role-select" onchange="updateRole(3, this.value)">
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="user" selected>User</option>
+                </select>
+              </td>
+              <td><span class="badge badge-red">✗ Off</span></td>
+              <td>5</td>
+              <td style="font-size:0.8rem; color:var(--text-2);">May 18</td>
+              <td><span class="badge badge-green">Active</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-danger btn-icon btn-sm">🚫</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="avatar" style="font-size:0.7rem; background:var(--navy-5);">LL</div>
+                  <div>
+                    <div style="font-weight:500; color:var(--text-2); font-size:0.875rem;">Layla Lim</div>
+                    <div style="font-size:0.75rem; color:var(--text-3);">layla@example.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <select class="role-select" onchange="updateRole(4, this.value)">
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="user" selected>User</option>
+                </select>
+              </td>
+              <td><span class="badge badge-amber">— N/A</span></td>
+              <td>0</td>
+              <td style="font-size:0.8rem; color:var(--text-3);">Never</td>
+              <td><span class="badge badge-gray">Inactive</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-success btn-icon btn-sm" title="Reactivate">✅</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Audit Log Tab ── -->
+    <div id="tab-audit" style="display:none;">
+      <div class="filters-bar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search audit log..." />
+        </div>
+        <select class="form-control" style="width:auto;">
+          <option>All actions</option>
+          <option>Login</option>
+          <option>Upload</option>
+          <option>Download</option>
+          <option>Delete</option>
+          <option>Role change</option>
+        </select>
+        <input type="date" class="form-control" style="width:auto;" />
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Resource</th>
+              <th>IP Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-21 10:22:04</td>
+              <td style="font-size:0.85rem;">John Doe</td>
+              <td><span class="badge badge-blue">Upload</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">contract_v2.pdf</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">192.168.1.10</td>
+              <td><span class="badge badge-green">Success</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-21 09:15:33</td>
+              <td style="font-size:0.85rem;">John Doe</td>
+              <td><span class="badge badge-gray">Login</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">—</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">192.168.1.10</td>
+              <td><span class="badge badge-green">Success</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-20 14:05:17</td>
+              <td style="font-size:0.85rem;">Sara Ahmed</td>
+              <td><span class="badge badge-amber">Download</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">financial_report_q1.xlsx</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">10.0.0.44</td>
+              <td><span class="badge badge-green">Success</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-20 11:48:02</td>
+              <td style="font-size:0.85rem;">Unknown</td>
+              <td><span class="badge badge-gray">Login</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">—</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">203.0.113.42</td>
+              <td><span class="badge badge-red">Failed</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-19 16:30:55</td>
+              <td style="font-size:0.85rem;">John Doe</td>
+              <td><span class="badge badge-purple">Role change</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">Sara Ahmed → Manager</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">192.168.1.10</td>
+              <td><span class="badge badge-green">Success</span></td>
+            </tr>
+            <tr>
+              <td style="font-size:0.8rem; color:var(--text-2); white-space:nowrap;">2026-05-18 09:47:11</td>
+              <td style="font-size:0.85rem;">Mohamed Karim</td>
+              <td><span class="badge badge-blue">Upload</span></td>
+              <td style="font-size:0.82rem; color:var(--text-2);">nda_signed.docx</td>
+              <td style="font-family:monospace; font-size:0.78rem; color:var(--text-3);">10.0.0.88</td>
+              <td><span class="badge badge-green">Success</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── All Documents Tab ── -->
+    <div id="tab-docs" style="display:none;">
+      <div class="filters-bar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search documents..." />
+        </div>
+        <select class="form-control" style="width:auto;">
+          <option>All statuses</option>
+          <option>Verified</option>
+          <option>Pending</option>
+          <option>Modified</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Owner</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th>Integrity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="file-name"><span class="file-icon">📄</span> contract_v2.pdf</div></td>
+              <td style="font-size:0.85rem; color:var(--text-2);">John Doe</td>
+              <td style="font-size:0.82rem; color:var(--text-3);">2.4 MB</td>
+              <td style="font-size:0.8rem; color:var(--text-3);">May 21</td>
+              <td><span class="badge badge-green">✓ Verified</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-ghost btn-icon btn-sm">⬇️</button>
+                  <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="file-name"><span class="file-icon">📊</span> financial_report_q1.xlsx</div></td>
+              <td style="font-size:0.85rem; color:var(--text-2);">Sara Ahmed</td>
+              <td style="font-size:0.82rem; color:var(--text-3);">1.1 MB</td>
+              <td style="font-size:0.8rem; color:var(--text-3);">May 20</td>
+              <td><span class="badge badge-green">✓ Verified</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-ghost btn-icon btn-sm">⬇️</button>
+                  <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="file-name"><span class="file-icon">🖼️</span> id_scan.png</div></td>
+              <td style="font-size:0.85rem; color:var(--text-2);">John Doe</td>
+              <td style="font-size:0.82rem; color:var(--text-3);">876 KB</td>
+              <td style="font-size:0.8rem; color:var(--text-3);">May 15</td>
+              <td><span class="badge badge-red">✗ Modified</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm">👁️</button>
+                  <button class="btn btn-ghost btn-icon btn-sm">⬇️</button>
+                  <button class="btn btn-danger btn-icon btn-sm">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Invite User Modal ── -->
+<div class="modal-backdrop" id="inviteModal" style="display:none;" onclick="if(event.target===this) this.style.display='none'">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Invite new user</h3>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="document.getElementById('inviteModal').style.display='none'">✕</button>
+    </div>
+
+    <form action="/admin/invite" method="POST">
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input type="email" name="email" class="form-control" placeholder="colleague@example.com" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assign role</label>
+        <select name="role" class="form-control">
+          <option value="user">User</option>
+          <option value="manager">Manager</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Personal message <span style="color:var(--text-3); font-weight:400;">(optional)</span></label>
+        <textarea name="message" class="form-control" rows="2" placeholder="Add a welcome note..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('inviteModal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn btn-primary">Send invite</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function switchTab(name, btn) {
+    ['users','audit','docs'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function filterTable(query) {
+    const rows = document.querySelectorAll('#usersTable tbody tr');
+    rows.forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  function updateRole(userId, role) {
+    fetch(`/admin/users/${userId}/role`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+  }
+</script>
+</body>
+</html>

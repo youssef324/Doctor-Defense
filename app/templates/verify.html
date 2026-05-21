@@ -1,98 +1,282 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-lg-8">
-        <div class="card p-5 shadow">
-            <div class="text-center mb-5">
-                <i class="fas fa-check-circle fa-4x text-primary mb-3"></i>
-                <h2 class="hero-text">Document Integrity Verification</h2>
-                <p class="text-muted">SHA-256 hash + RSA digital signature</p>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Document — DocVault</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+<div class="app-shell">
 
-            <div class="card bg-dark border-0 p-4 mb-4">
-                <h5 class="text-primary mb-3">
-                    <i class="fas fa-file-alt"></i> {{ doc.original_filename }}
-                </h5>
-                <div class="row text-start g-3">
-                    <div class="col-6">
-                        <small class="text-muted">File Size</small>
-                        <p class="mb-0 fw-bold">{{ (doc.size / 1024)|round(2) }} KB</p>
-                    </div>
-                    <div class="col-6">
-                        <small class="text-muted">Uploaded</small>
-                        <p class="mb-0 fw-bold">{{ doc.uploaded_at.strftime('%B %d, %Y %H:%M') }}</p>
-                    </div>
-                </div>
-            </div>
-
-            {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-
-            {% if verified is not none %}
-                {% if verified %}
-                <div class="alert alert-success border-0">
-                    <strong>Document is authentic.</strong><br>
-                    Digital signature and integrity check passed.
-                </div>
-                {% else %}
-                <div class="alert alert-warning border-0">
-                    <strong>Verification failed.</strong><br>
-                    The signature does not match the decrypted content.
-                </div>
-                {% endif %}
-            {% else %}
-            <div class="alert alert-info">
-                Enter the decryption password used at upload to run a live integrity check.
-            </div>
-            {% endif %}
-
-            <form method="POST" class="mb-4">
-                <div class="mb-3">
-                    <label class="form-label">Decryption Password</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-shield-alt"></i> Verify Document
-                </button>
-            </form>
-
-            <div class="card bg-dark p-4">
-                <h6 class="text-primary mb-3">Technical Details</h6>
-                <table class="table table-dark table-borderless small">
-                    <tr>
-                        <td><strong>SHA-256 Hash</strong></td>
-                        <td class="text-break font-monospace">{{ doc.file_hash }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Signature Status</strong></td>
-                        <td>
-                            {% if verified is true %}
-                            <span class="badge bg-success">VALID</span>
-                            {% elif verified is false %}
-                            <span class="badge bg-danger">INVALID</span>
-                            {% else %}
-                            <span class="badge bg-secondary">PENDING</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Encryption</strong></td>
-                        <td>AES-256-GCM</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Owner</strong></td>
-                        <td>{{ doc.user.username }}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="text-center mt-4">
-                <a href="{{ url_for('documents.dashboard') }}" class="btn btn-outline-light px-5">
-                    ← Back to Dashboard
-                </a>
-            </div>
-        </div>
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔐</div>
+      DocVault
     </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">HTTPS Secure</div>
+      <span style="font-size:0.825rem; color:var(--text-2);">John Doe</span>
+      <div class="avatar">JD</div>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Sign out</a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/documents" class="nav-link"><span class="nav-icon">📁</span> My Documents</a>
+    <a href="/documents/upload" class="nav-link"><span class="nav-icon">⬆️</span> Upload</a>
+    <a href="/documents/verify" class="nav-link active"><span class="nav-icon">✅</span> Verify Document</a>
+    <span class="nav-section-label">Account</span>
+    <a href="/profile" class="nav-link"><span class="nav-icon">👤</span> Profile</a>
+    <a href="/profile/2fa" class="nav-link"><span class="nav-icon">🔐</span> Two-Factor Auth</a>
+    <a href="/profile/security" class="nav-link"><span class="nav-icon">🛡️</span> Security Log</a>
+    <span class="nav-section-label">Administration</span>
+    <a href="/admin/users" class="nav-link"><span class="nav-icon">👥</span> Manage Users</a>
+    <a href="/admin/audit" class="nav-link"><span class="nav-icon">📋</span> Audit Log</a>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">JD</div>
+        <div class="user-meta">
+          <div class="name">John Doe</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Verify Document</h1>
+        <p>Check whether a document has been tampered with since it was uploaded.</p>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start;">
+
+      <!-- Verification form -->
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Upload file to verify</h3>
+          </div>
+
+          <form action="/documents/verify" method="POST" enctype="multipart/form-data" id="verifyForm">
+
+            <div class="upload-zone" id="dropZone" style="padding:2rem;">
+              <input type="file" name="document" id="fileInput" />
+              <div class="upload-icon" style="font-size:2rem;">🔍</div>
+              <h3>Drop file to verify</h3>
+              <p>or click to select from your computer</p>
+            </div>
+
+            <!-- File preview -->
+            <div id="filePreview" style="display:none; margin-top:1rem; padding:14px; background:var(--navy-3); border-radius:var(--radius-md); border:1px solid var(--border); align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.4rem;" id="previewIcon">📄</span>
+                <div>
+                  <div style="font-size:0.875rem; font-weight:500; color:var(--text-1);" id="previewName">—</div>
+                  <div style="font-size:0.75rem; color:var(--text-3);" id="previewSize">—</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="clearFile()">✕</button>
+            </div>
+
+            <div style="margin-top:1.25rem;">
+              <p style="font-size:0.825rem; color:var(--text-3); margin-bottom:1rem; text-align:center;">— or verify by document ID —</p>
+              <div class="input-group">
+                <span class="input-icon">🔖</span>
+                <input type="text" name="docId" class="form-control" placeholder="Paste document ID  (e.g. doc_a1b2c3d4)" />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1.25rem;" id="verifyBtn">
+              ✅ Verify integrity
+            </button>
+
+          </form>
+        </div>
+
+        <!-- ── Result panel (shown after verification) ── -->
+        <!-- VALID result: -->
+        <div class="card" id="resultPanel">
+          <div class="card-header">
+            <h3 class="card-title">Verification result</h3>
+            <span style="font-size:0.75rem; color:var(--text-3);">Checked just now</span>
+          </div>
+
+          <!-- VALID -->
+          <div class="verify-result valid" style="margin-bottom:1.25rem;">
+            <div class="verify-icon">✅</div>
+            <div>
+              <div class="verify-title">Document is authentic</div>
+              <p style="font-size:0.82rem; color:var(--text-2); margin-top:4px;">
+                The file matches the original stored hash and signature. No tampering detected.
+              </p>
+            </div>
+          </div>
+
+          <!-- INVALID (uncomment to show)
+          <div class="verify-result invalid" style="margin-bottom:1.25rem;">
+            <div class="verify-icon">❌</div>
+            <div>
+              <div class="verify-title">Document has been modified</div>
+              <p style="font-size:0.82rem; color:var(--text-2); margin-top:4px;">
+                The computed hash does not match the stored signature. This file may have been tampered with.
+              </p>
+            </div>
+          </div>
+          -->
+
+          <!-- Hash details -->
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
+            <div>
+              <div style="color:var(--text-3); margin-bottom:4px; font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase;">Stored hash (SHA-256)</div>
+              <div class="hash-box">a3f8c2e1d4b7965f3e2a1c0d8f4b2e6a9c3d7f1e5b8a2c4d6e0f3a1b9c2d5e7f</div>
+            </div>
+            <div>
+              <div style="color:var(--text-3); margin-bottom:4px; font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase;">Computed hash (SHA-256)</div>
+              <div class="hash-box">a3f8c2e1d4b7965f3e2a1c0d8f4b2e6a9c3d7f1e5b8a2c4d6e0f3a1b9c2d5e7f</div>
+            </div>
+            <div>
+              <div style="color:var(--text-3); margin-bottom:4px; font-size:0.75rem; letter-spacing:0.04em; text-transform:uppercase;">Signature status</div>
+              <span class="badge badge-green">✓ Valid signature</span>
+            </div>
+          </div>
+
+          <!-- Document metadata -->
+          <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+            <div style="font-size:0.75rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:10px;">Document info</div>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.83rem;">
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-3);">File name</span>
+                <span style="color:var(--text-1);">contract_v2.pdf</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-3);">Uploaded by</span>
+                <span style="color:var(--text-1);">John Doe</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-3);">Upload date</span>
+                <span style="color:var(--text-1);">May 21, 2026 — 10:22</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-3);">File size</span>
+                <span style="color:var(--text-1);">2.4 MB</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-3);">Encryption</span>
+                <span class="badge badge-blue" style="font-size:0.7rem;">AES-256</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- ── End result panel ── -->
+
+      </div>
+
+      <!-- Right info column -->
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:1rem;">How verification works</h3>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; gap:10px; align-items:flex-start; font-size:0.83rem;">
+              <div style="width:26px; height:26px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.7rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">1</div>
+              <div>
+                <strong style="color:var(--text-1); display:block; margin-bottom:2px;">Hash your file</strong>
+                <span style="color:var(--text-3);">We compute a SHA-256 hash of the uploaded file</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-start; font-size:0.83rem;">
+              <div style="width:26px; height:26px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.7rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">2</div>
+              <div>
+                <strong style="color:var(--text-1); display:block; margin-bottom:2px;">Compare hashes</strong>
+                <span style="color:var(--text-3);">The new hash is compared against the stored original</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-start; font-size:0.83rem;">
+              <div style="width:26px; height:26px; background:var(--accent-glow); border-radius:50%; display:grid; place-items:center; font-size:0.7rem; font-weight:700; color:var(--accent-2); flex-shrink:0;">3</div>
+              <div>
+                <strong style="color:var(--text-1); display:block; margin-bottom:2px;">Signature check</strong>
+                <span style="color:var(--text-3);">The digital signature is verified for authenticity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.75rem;">Result meanings</h3>
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
+            <div style="display:flex; gap:8px; align-items:flex-start;">
+              <span>✅</span>
+              <div>
+                <strong style="color:var(--success); display:block;">Authentic</strong>
+                <span style="color:var(--text-3);">File is unchanged since upload</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:flex-start;">
+              <span>❌</span>
+              <div>
+                <strong style="color:var(--danger); display:block;">Modified</strong>
+                <span style="color:var(--text-3);">File contents differ from the stored version</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:flex-start;">
+              <span>⚠️</span>
+              <div>
+                <strong style="color:var(--warning); display:block;">Not found</strong>
+                <span style="color:var(--text-3);">No matching document ID in the vault</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
 </div>
-{% endblock %}
+
+<script>
+  const dropZone  = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const preview   = document.getElementById('filePreview');
+  const icons = { pdf:'📄', doc:'📝', docx:'📝', xlsx:'📊', csv:'📊', txt:'📋', png:'🖼️', jpg:'🖼️', jpeg:'🖼️' };
+
+  function showPreview(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    document.getElementById('previewIcon').textContent = icons[ext] || '📄';
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('previewSize').textContent = (file.size / 1024 < 1024)
+      ? (file.size / 1024).toFixed(1) + ' KB'
+      : (file.size / 1024 / 1024).toFixed(1) + ' MB';
+    preview.style.display = 'flex';
+    dropZone.style.display = 'none';
+  }
+
+  function clearFile() {
+    fileInput.value = '';
+    preview.style.display = 'none';
+    dropZone.style.display = 'block';
+  }
+
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) { fileInput.files = e.dataTransfer.files; showPreview(file); }
+  });
+</script>
+</body>
+</html>
