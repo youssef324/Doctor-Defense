@@ -1,9 +1,10 @@
 from io import BytesIO
 import base64
-
+# pyrefly: ignore [missing-import]
 import pyotp
 import qrcode
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+# pyrefly: ignore [missing-import]
 from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity,
@@ -156,11 +157,11 @@ def setup_2fa():
 
 def _render_2fa_setup(user, secret, step=2, already_enabled=False):
     totp = pyotp.TOTP(secret)
-    uri = totp.provisioning_uri(name=user.email, issuer_name='SecureDocumentVault')
+    uri = totp.provisioning_uri(name=user.email, issuer_name='DoctorDefense')
 
     qr = qrcode.make(uri)
     buffered = BytesIO()
-    qr.save(buffered, format='PNG')
+    qr.save(buffered)
     qr_code = base64.b64encode(buffered.getvalue()).decode()
 
     return render_template(

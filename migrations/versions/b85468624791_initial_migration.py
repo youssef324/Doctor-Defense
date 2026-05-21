@@ -5,7 +5,9 @@ Revises:
 Create Date: 2026-05-15 18:22:55.892581
 
 """
+# pyrefly: ignore [missing-import]
 from alembic import op
+# pyrefly: ignore [missing-import]
 import sqlalchemy as sa
 
 

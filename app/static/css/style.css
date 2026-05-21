@@ -4,9 +4,11 @@
 :root {
     --primary: #00ff9d;
     --dark: #0a0a0a;
-    --card: #111111;
+    --card: rgba(17, 17, 17, 0.4);
     --text: #e0e0e0;
     --accent: #00cc7a;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -23,10 +25,11 @@ body {
 }
 
 .navbar {
-    background: rgba(10, 10, 10, 0.95) !important;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--primary);
-    box-shadow: 0 4px 20px rgba(0, 255, 157, 0.1);
+    background: rgba(10, 10, 10, 0.7) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .navbar-brand {
@@ -51,10 +54,12 @@ body {
 }
 
 .card {
-    background: var(--card);
-    border: 1px solid rgba(0, 255, 157, 0.2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
     border-radius: 16px;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden;
 }
 
@@ -120,11 +125,19 @@ h2, h4 {
 
 /* Login & Register */
 .auth-card {
-    background: var(--card);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     padding: 40px;
-    border: 1px solid rgba(0, 255, 157, 0.3);
+    border: 1px solid var(--glass-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 255, 157, 0.15);
 }
 
 .upload-area {

@@ -1,7 +1,10 @@
 import os
 
+# pyrefly: ignore [missing-import]
 from flask import Flask, g, redirect, request, url_for
+# pyrefly: ignore [missing-import]
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
+# pyrefly: ignore [missing-import]
 from flask_migrate import Migrate
 
 from app.config import Config

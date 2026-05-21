@@ -1,5 +1,6 @@
 from functools import wraps
 
+# pyrefly: ignore [missing-import]
 from flask import abort, redirect, url_for, flash
 # pyrefly: ignore [missing-import]
 from flask_jwt_extended import get_jwt_identity, jwt_required
